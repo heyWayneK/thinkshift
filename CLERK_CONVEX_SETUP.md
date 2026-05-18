@@ -168,37 +168,62 @@ Sign up at `/sign-up` → you'll be forced through `/onboarding/organization`
 
 ---
 
-## 5. Joint-venture applications + MS365 email
+## 5. Joint-venture applications + Microsoft Graph email
 
 Public form at `/#apply` → `applications.submit` (no auth) stores the row
 (`applications` table, `status: "queued"`) and enqueues the notification via
-the **Convex scheduler** (the durable queue). `convex/email.ts` is a Node
-action that sends through MS365 SMTP with nodemailer, marks the row
+the **Convex scheduler** (the durable queue). `convex/email.ts` sends through
+**Microsoft Graph `sendMail`** (app-only OAuth, no SMTP), marks the row
 `sent`/`failed`, and retries with backoff up to 3 attempts. Superadmins see
-the queue (and any SMTP errors) at `/admin`.
+the queue (and any errors) at `/admin`.
 
-### Required on the Convex deployment
+### Entra ID (Azure AD) app — one-time, needs an M365 admin
 
-The email action runs **inside Convex**, so these must be set in the Convex
-dashboard env vars (the values exist in `.env.local`, but Next can't pass them
-to Convex):
+1. **App registrations → New registration** (single tenant). Note the
+   **Directory (tenant) ID** and **Application (client) ID**.
+2. **Certificates & secrets → New client secret** → copy the **value**.
+3. **API permissions → Microsoft Graph → Application permissions →
+   `Mail.Send`** → then **Grant admin consent**.
+4. *(Recommended)* Limit the app to only the sender mailbox with an Exchange
+   Online **Application Access Policy** (`New-ApplicationAccessPolicy`).
+
+### Required on the Convex (production) deployment
 
 ```
-MS356_EMAIL_SERVER_HOST     = smtp.office365.com
-MS356_EMAIL_SERVER_PORT     = 587
-MS356_EMAIL_SERVER_USER     = wayne@thinkshift-ai.com
-MS356_EMAIL_SERVER_PASSWORD = <mailbox password / app password>
+MS_GRAPH_TENANT_ID     = <directory (tenant) id>
+MS_GRAPH_CLIENT_ID     = <application (client) id>
+MS_GRAPH_CLIENT_SECRET = <client secret value>
+MS_GRAPH_SENDER        = wayne@thinkshift-ai.com
 ```
 
 Until they're set, applications are still **safely stored and queued** — they
-just show `failed` ("env vars not set") in `/admin` and will send once the
-vars are added (resubmit, or they retry on the next scheduled attempt).
+show `failed` ("env vars not set") in `/admin` and retry once the vars exist.
+The old `MS356_EMAIL_SERVER_*` SMTP vars are no longer used (Graph avoids the
+disabled-basic-auth problem entirely).
 
-> ⚠️ **Office 365 caveat:** Microsoft disables SMTP AUTH (basic auth) on
-> mailboxes by default — your own comment called it "legacy." If sends fail
-> with an auth error, either enable **Authenticated SMTP** for
-> `wayne@thinkshift-ai.com` (Microsoft 365 admin → Active users → Mail) and
-> use an **app password** if MFA is on, or switch the action to the Microsoft
-> Graph API (`Mail.Send`, OAuth client-credentials) — say the word and I'll
-> swap it. Either way the application data is never lost; only delivery is
-> affected, and the error is visible in `/admin`.
+---
+
+## 6. Convex production deployment (used by Vercel)
+
+`vercel.json` build command is `npx convex deploy --cmd 'next build'`. On each
+push it deploys Convex functions to the deployment that `CONVEX_DEPLOY_KEY`
+targets and injects that deployment's `NEXT_PUBLIC_CONVEX_URL` into the Next
+build automatically.
+
+**One-time promotion from the dev deployment:**
+
+1. Convex dashboard → **Project Settings → Production → Generate Production
+   Deploy Key**. Add it to **Vercel → Settings → Environment Variables** as
+   `CONVEX_DEPLOY_KEY` (Production scope).
+2. Push (or redeploy). The first prod build creates the production Convex
+   deployment with the schema + functions, and Vercel no longer needs a
+   manual `NEXT_PUBLIC_CONVEX_URL` (Convex injects it).
+3. In the Convex dashboard, switch to the **production** deployment and set
+   its env vars: `CLERK_WEBHOOK_SECRET`, `CLERK_SECRET_KEY`,
+   `SUPERADMIN_ORG_ID`, and the four `MS_GRAPH_*` values.
+4. Note the production deployment's site URL (`https://<name>.convex.site`)
+   and **repoint the Clerk webhook endpoint** to
+   `https://<name>.convex.site/clerk-webhook` (re-copy the signing secret if
+   Clerk issues a new one).
+5. `auth.config.ts` domain is unchanged (same Clerk instance). Keep the dev
+   deployment for local `npx convex dev`.
