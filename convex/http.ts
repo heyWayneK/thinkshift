@@ -3,9 +3,27 @@ import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { Webhook } from "svix";
 
+type ClerkEmail = { id?: string; email_address?: string };
+
+type ClerkData = {
+  id: string;
+  email_addresses?: ClerkEmail[];
+  primary_email_address_id?: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  username?: string | null;
+  image_url?: string;
+  name?: string;
+  slug?: string;
+  public_metadata?: Record<string, unknown> | null;
+  organization?: { id: string };
+  public_user_data?: { user_id: string };
+  role?: string;
+};
+
 type ClerkEvent = {
   type: string;
-  data: Record<string, any>;
+  data: ClerkData;
 };
 
 async function verify(req: Request): Promise<ClerkEvent | null> {
@@ -28,14 +46,14 @@ async function verify(req: Request): Promise<ClerkEvent | null> {
   }
 }
 
-function primaryEmail(data: Record<string, any>): string | undefined {
-  const list = data.email_addresses as Array<any> | undefined;
+function primaryEmail(data: ClerkData): string | undefined {
+  const list = data.email_addresses;
   if (!list?.length) return undefined;
   const primary = list.find((e) => e.id === data.primary_email_address_id);
   return (primary ?? list[0])?.email_address;
 }
 
-function fullName(data: Record<string, any>): string | undefined {
+function fullName(data: ClerkData): string | undefined {
   const name = [data.first_name, data.last_name].filter(Boolean).join(" ");
   return name || data.username || undefined;
 }
@@ -128,7 +146,7 @@ const handleClerkWebhook = httpAction(async (ctx, req) => {
     case "organization.updated":
       await ctx.runMutation(internal.clerkSync.upsertOrg, {
         clerkOrgId: data.id,
-        name: data.name,
+        name: data.name ?? "Organization",
         slug: data.slug,
         imageUrl: data.image_url,
         isPersonal: data.public_metadata?.personal === true,
@@ -144,20 +162,30 @@ const handleClerkWebhook = httpAction(async (ctx, req) => {
       break;
 
     case "organizationMembership.created":
-    case "organizationMembership.updated":
-      await ctx.runMutation(internal.clerkSync.upsertMembership, {
-        clerkUserId: data.public_user_data.user_id,
-        clerkOrgId: data.organization.id,
-        role: data.role,
-      });
+    case "organizationMembership.updated": {
+      const userId = data.public_user_data?.user_id;
+      const orgId = data.organization?.id;
+      if (userId && orgId) {
+        await ctx.runMutation(internal.clerkSync.upsertMembership, {
+          clerkUserId: userId,
+          clerkOrgId: orgId,
+          role: data.role ?? "org:member",
+        });
+      }
       break;
+    }
 
-    case "organizationMembership.deleted":
-      await ctx.runMutation(internal.clerkSync.deleteMembership, {
-        clerkUserId: data.public_user_data.user_id,
-        clerkOrgId: data.organization.id,
-      });
+    case "organizationMembership.deleted": {
+      const userId = data.public_user_data?.user_id;
+      const orgId = data.organization?.id;
+      if (userId && orgId) {
+        await ctx.runMutation(internal.clerkSync.deleteMembership, {
+          clerkUserId: userId,
+          clerkOrgId: orgId,
+        });
+      }
       break;
+    }
 
     default:
       // Unhandled event types are acknowledged so Clerk doesn't retry.

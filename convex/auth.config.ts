@@ -7,7 +7,7 @@
  * This is the Clerk Frontend API URL for the `witty-octopus-65` instance.
  * When you move to a production Clerk instance, update this domain.
  */
-export default {
+const authConfig = {
   providers: [
     {
       domain: "https://witty-octopus-65.clerk.accounts.dev",
@@ -15,3 +15,5 @@ export default {
     },
   ],
 };
+
+export default authConfig;
