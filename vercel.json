@@ -2,13 +2,5 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "buildCommand": "npx convex deploy --cmd 'next build'",
-  "installCommand": "npm install",
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.thinkshift-ai.com" }],
-      "destination": "https://thinkshift-ai.com/:path*",
-      "permanent": true
-    }
-  ]
+  "installCommand": "npm install"
 }
