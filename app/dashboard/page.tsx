@@ -37,7 +37,7 @@ export default async function DashboardPage() {
               afterSelectOrganizationUrl="/dashboard"
               afterLeaveOrganizationUrl="/onboarding/organization"
             />
-            <UserButton />
+            <UserButton showName />
           </div>
         </div>
       </header>
@@ -61,8 +61,8 @@ export default async function DashboardPage() {
         </div>
         <p className="mt-3 max-w-xl text-muted">
           You&apos;re signed in and operating inside an organization. Clerk is
-          authenticating Convex, and the webhook keeps users, organizations,
-          and memberships (with roles) in sync.
+          authenticating Convex, and the webhook keeps users, organizations, and
+          memberships (with roles) in sync.
         </p>
 
         <div className="mt-10 grid gap-5 md:grid-cols-2">
@@ -78,8 +78,7 @@ export default async function DashboardPage() {
               <span className="text-muted">Active org:</span> {viewer.orgId}
             </p>
             <p className="mt-1">
-              <span className="text-muted">Role:</span>{" "}
-              {viewer.orgRole ?? "—"}
+              <span className="text-muted">Role:</span> {viewer.orgRole ?? "—"}
             </p>
             <p className="mt-1">
               <span className="text-muted">Superadmin:</span>{" "}

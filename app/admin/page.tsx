@@ -13,7 +13,7 @@ export default async function AdminPage() {
       <div className="bg-grid pointer-events-none absolute inset-0" />
 
       <header className="relative z-10 border-b border-white/5 bg-background/70 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 ">
           <Link href="/dashboard">
             <Image
               src="/thinkshift_logo_white.svg"
@@ -23,7 +23,7 @@ export default async function AdminPage() {
               className="h-7 w-auto"
             />
           </Link>
-          <UserButton />
+          <UserButton showName />
         </div>
       </header>
 

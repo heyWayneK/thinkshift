@@ -40,7 +40,16 @@ export default function RootLayout({
       signUpFallbackRedirectUrl="/dashboard"
       afterSignOutUrl="/"
       appearance={{
-        baseTheme: dark,
+        // v7 ("Current" SDK) uses `theme`, not the Core-2 `baseTheme`
+        // (deprecated; runtime clerk-js ignores it, so components fell
+        // back to the light theme -> dark text on our dark card).
+        theme: dark,
+        layout: {
+          // The Clerk Dashboard logo is the black variant -> invisible on
+          // the dark card. Force the white asset for our dark theme.
+          logoImageUrl: "/thinkshift_logo_white.svg",
+          logoLinkUrl: "/",
+        },
         variables: {
           colorPrimary: "#34d399",
           colorTextOnPrimaryBackground: "#04110d",
