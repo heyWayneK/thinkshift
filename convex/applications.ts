@@ -1,7 +1,7 @@
 import { mutation, internalMutation, internalQuery, query } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v, ConvexError } from "convex/values";
-import { requireUser, isSuperadmin } from "./authz";
+import { requireUser, isSuperadmin, authDeny } from "./authz";
 
 /**
  * Expected, user-facing validation failure. Unlike a plain `throw new Error`,
@@ -95,7 +95,7 @@ export const list = query({
   handler: async (ctx) => {
     const userId = await requireUser(ctx);
     if (!(await isSuperadmin(ctx, userId))) {
-      throw new Error("Forbidden: superadmin only");
+      authDeny("forbidden", "Superadmin only");
     }
     return await ctx.db.query("applications").order("desc").take(100);
   },

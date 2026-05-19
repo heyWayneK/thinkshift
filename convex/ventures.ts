@@ -1,6 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { requireOrgAdmin, requireOrgMember, requireUser } from "./authz";
+import { requireOrgAdmin, requireOrgMember, isSuperadmin } from "./authz";
 
 const statusValidator = v.union(
   v.literal("idea"),
@@ -9,11 +9,28 @@ const statusValidator = v.union(
   v.literal("archived"),
 );
 
-/** READ — any member of the org (superadmins included). */
+/**
+ * READ — any member of the org (superadmins included). Degrades gracefully:
+ * returns [] for unauthenticated / non-member instead of throwing, so a
+ * `useQuery` on the dashboard never crashes the page (e.g. before the Clerk
+ * webhook has synced the membership). Writes below stay strictly enforced.
+ */
 export const list = query({
   args: { clerkOrgId: v.string() },
   handler: async (ctx, { clerkOrgId }) => {
-    await requireOrgMember(ctx, clerkOrgId);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+
+    const membership = await ctx.db
+      .query("memberships")
+      .withIndex("byUserAndOrg", (q) =>
+        q.eq("clerkUserId", identity.subject).eq("clerkOrgId", clerkOrgId),
+      )
+      .unique();
+    if (!membership && !(await isSuperadmin(ctx, identity.subject))) {
+      return [];
+    }
+
     return await ctx.db
       .query("ventures")
       .withIndex("byClerkOrgId", (q) => q.eq("clerkOrgId", clerkOrgId))
@@ -102,11 +119,12 @@ export const addNote = mutation({
 export const myOrgRole = query({
   args: { clerkOrgId: v.string() },
   handler: async (ctx, { clerkOrgId }) => {
-    const clerkUserId = await requireUser(ctx);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return { role: null };
     const m = await ctx.db
       .query("memberships")
       .withIndex("byUserAndOrg", (q) =>
-        q.eq("clerkUserId", clerkUserId).eq("clerkOrgId", clerkOrgId),
+        q.eq("clerkUserId", identity.subject).eq("clerkOrgId", clerkOrgId),
       )
       .unique();
     return { role: m?.role ?? null };

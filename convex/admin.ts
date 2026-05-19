@@ -1,14 +1,17 @@
 import { query } from "./_generated/server";
 import { QueryCtx } from "./_generated/server";
 import { ROLES } from "./access";
+import { authDeny } from "./authz";
 
 /** Throws unless the caller is an admin of the SUPERADMIN org. */
 async function assertSuperadmin(ctx: QueryCtx): Promise<string> {
   const identity = await ctx.auth.getUserIdentity();
-  if (!identity) throw new Error("Unauthenticated");
+  if (!identity) authDeny("unauthenticated", "Not signed in");
 
   const superOrg = process.env.SUPERADMIN_ORG_ID;
-  if (!superOrg) throw new Error("SUPERADMIN_ORG_ID is not configured");
+  if (!superOrg) {
+    authDeny("forbidden", "SUPERADMIN_ORG_ID is not configured");
+  }
 
   const membership = await ctx.db
     .query("memberships")
@@ -18,7 +21,7 @@ async function assertSuperadmin(ctx: QueryCtx): Promise<string> {
     .unique();
 
   if (!membership || membership.role !== ROLES.admin) {
-    throw new Error("Forbidden: superadmin only");
+    authDeny("forbidden", "Superadmin only");
   }
   return identity.subject;
 }

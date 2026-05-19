@@ -3,7 +3,17 @@
 import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
+import { ConvexError } from "convex/values";
 import { api } from "@/convex/_generated/api";
+
+function errMessage(e: unknown): string {
+  if (e instanceof ConvexError) {
+    const d = e.data as { message?: string } | string;
+    if (typeof d === "string") return d;
+    if (d?.message) return d.message;
+  }
+  return "Something went wrong. Please try again.";
+}
 
 const STATUSES = ["idea", "building", "live", "archived"] as const;
 
@@ -27,7 +37,7 @@ export default function Ventures() {
     try {
       await fn();
     } catch (e) {
-      setErr((e as Error).message.replace(/^.*AuthError:\s*/, ""));
+      setErr(errMessage(e));
     }
   };
 

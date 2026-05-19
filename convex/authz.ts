@@ -1,4 +1,5 @@
 import { QueryCtx, MutationCtx } from "./_generated/server";
+import { ConvexError } from "convex/values";
 import { ROLES } from "./access";
 
 /**
@@ -15,17 +16,28 @@ import { ROLES } from "./access";
 
 type Ctx = QueryCtx | MutationCtx;
 
-export class AuthError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "AuthError";
-  }
+/**
+ * Throw an authorization failure as a ConvexError so the real message
+ * survives to the client (plain Errors are redacted to "Server Error" in
+ * production). `code` lets the UI distinguish e.g. unauthenticated vs
+ * not-a-member.
+ */
+export function authDeny(
+  code: "unauthenticated" | "not_member" | "forbidden",
+  message: string,
+): never {
+  throw new ConvexError({ kind: "auth", code, message });
+}
+
+/** Back-compat: AuthError(message) now raises a ConvexError. */
+export function AuthError(message: string): never {
+  return authDeny("forbidden", message);
 }
 
 /** The signed-in Clerk user id, or throw. */
 export async function requireUser(ctx: Ctx): Promise<string> {
   const identity = await ctx.auth.getUserIdentity();
-  if (!identity) throw new AuthError("Not authenticated");
+  if (!identity) authDeny("unauthenticated", "Not signed in");
   return identity.subject;
 }
 
@@ -72,7 +84,10 @@ export async function requireOrgMember(
   const role = await roleIn(ctx, clerkUserId, clerkOrgId);
   const superadmin = await isSuperadmin(ctx, clerkUserId);
   if (!role && !superadmin) {
-    throw new AuthError("You are not a member of this organization");
+    authDeny(
+      "not_member",
+      "Your account isn't synced to an organization yet. If you just signed up, give it a moment; otherwise contact support.",
+    );
   }
   return { clerkUserId, clerkOrgId, role, isSuperadmin: superadmin };
 }
@@ -87,7 +102,7 @@ export async function requireOrgAdmin(
 ): Promise<OrgContext> {
   const orgCtx = await requireOrgMember(ctx, clerkOrgId);
   if (orgCtx.role !== ROLES.admin && !orgCtx.isSuperadmin) {
-    throw new AuthError("Requires organization admin");
+    authDeny("forbidden", "Requires organization admin");
   }
   return orgCtx;
 }
