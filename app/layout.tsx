@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
+import { dark } from "@clerk/ui/themes";
 import ConvexClientProvider from "./ConvexClientProvider";
 import "./globals.css";
 
@@ -40,24 +40,28 @@ export default function RootLayout({
       signUpFallbackRedirectUrl="/dashboard"
       afterSignOutUrl="/"
       appearance={{
-        // v7 ("Current" SDK) uses `theme`, not the Core-2 `baseTheme`
-        // (deprecated; runtime clerk-js ignores it, so components fell
-        // back to the light theme -> dark text on our dark card).
+        // Runtime clerk-js is v6 (instance display_config.clerk_js_version),
+        // so the theme MUST come from `@clerk/ui/themes` (v6 schema), not
+        // the Core-2 `@clerk/themes`. Feeding a `@clerk/themes@2` `dark`
+        // object to clerk-js v6 throws and blanks every Clerk component.
         theme: dark,
-        layout: {
-          // The Clerk Dashboard logo is the black variant -> invisible on
-          // the dark card. Force the white asset for our dark theme.
+        options: {
+          // v6 renamed the Core-2 `layout` block to `options`.
+          // Dashboard logo is the black variant -> invisible on the dark
+          // card; force the white asset for our dark theme.
           logoImageUrl: "/thinkshift_logo_white.svg",
           logoLinkUrl: "/",
         },
         variables: {
+          // clerk-js v6 (@clerk/ui) renamed several Core-2 variable keys;
+          // old names are silently dropped, so use the v6 names.
           colorPrimary: "#34d399",
-          colorTextOnPrimaryBackground: "#04110d",
+          colorPrimaryForeground: "#04110d", // was colorTextOnPrimaryBackground
           colorBackground: "#0d0f12",
-          colorText: "#e8eaed",
-          colorTextSecondary: "#9aa0aa",
-          colorInputBackground: "#15181d",
-          colorInputText: "#e8eaed",
+          colorForeground: "#e8eaed", // was colorText
+          colorMutedForeground: "#9aa0aa", // was colorTextSecondary
+          colorInput: "#15181d", // was colorInputBackground
+          colorInputForeground: "#e8eaed", // was colorInputText
           colorNeutral: "#e8eaed",
           colorShimmer: "rgba(255,255,255,0.08)",
           borderRadius: "0.6rem",
