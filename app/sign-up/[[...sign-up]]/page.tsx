@@ -3,7 +3,7 @@ import { SignUp } from "@clerk/nextjs";
 export default function SignUpPage() {
   return (
     <div className="bg-aura flex min-h-screen items-center justify-center px-6 py-16">
-      <SignUp />
+      <SignUp fallbackRedirectUrl="/dashboard" signInUrl="/sign-in" />
     </div>
   );
 }
