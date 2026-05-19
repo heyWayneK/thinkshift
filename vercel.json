@@ -6,8 +6,8 @@
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "thinkshift-ai.com" }],
-      "destination": "https://www.thinkshift-ai.com/:path*",
+      "has": [{ "type": "host", "value": "www.thinkshift-ai.com" }],
+      "destination": "https://thinkshift-ai.com/:path*",
       "permanent": true
     }
   ]
