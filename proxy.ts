@@ -5,6 +5,10 @@ const isPublicRoute = createRouteMatcher([
   "/",
   "/sign-in(.*)",
   "/sign-up(.*)",
+  // Diagnostic page: must render signed-in OR signed-out so we can compare
+  // what auth() sees in both states. Safe (only exposes caller's own
+  // identity). Remove with the rest of the debug code.
+  "/debug-whoami(.*)",
 ]);
 
 // The org-onboarding flow itself must stay reachable without an active org.
