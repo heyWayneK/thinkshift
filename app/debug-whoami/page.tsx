@@ -7,7 +7,7 @@
 // Safe to keep in prod — only exposes the caller's own identity + non-secret
 // env. Delete this folder when done debugging.
 import { auth } from "@clerk/nextjs/server";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import DebugClient from "./DebugClient";
 
 export const dynamic = "force-dynamic";
@@ -35,45 +35,89 @@ function decodeJwtClaims(token: string | null) {
 }
 
 export default async function DebugWhoAmIPage() {
-  const a = await auth();
+  // Wrap auth() in try/catch so a thrown verification error surfaces here
+  // instead of crashing the page (and tells us *why* the server can't read
+  // the session that the browser clearly has).
+  let a: Awaited<ReturnType<typeof auth>> | null = null;
+  let authError: string | null = null;
+  try {
+    a = await auth();
+  } catch (err) {
+    authError = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+  }
   const h = await headers();
+  const c = await cookies();
 
   // The Convex JWT template is what convex/auth.config.ts validates against.
   // If this is null while userId is set, Clerk has no template named "convex".
   let convexToken: string | null = null;
   let convexTokenError: string | null = null;
   try {
-    convexToken = await a.getToken({ template: "convex" });
+    convexToken = a ? await a.getToken({ template: "convex" }) : null;
   } catch (err) {
     convexTokenError = err instanceof Error ? err.message : String(err);
   }
 
+  // Capture x-clerk-* headers that clerkMiddleware adds to the request before
+  // the page handler runs. These reveal what middleware decided about auth.
+  // x-clerk-auth-status: signed-in | signed-out
+  // x-clerk-auth-reason: e.g. "session-token-and-uat-missing", "token-expired",
+  //   "session-token-iat-in-the-future" — each reason points at a different bug.
+  const clerkHeaders: Record<string, string> = {};
+  h.forEach((v, k) => {
+    if (k.toLowerCase().startsWith("x-clerk-")) clerkHeaders[k] = v;
+  });
+
+  // Names of cookies the server actually received in this request. If
+  // __session / __session_<suffix> are NOT here while the browser shows them,
+  // cookie scope (Domain attribute) is wrong. If they ARE here but auth()
+  // still returns null, the issue is server-side JWT verification.
+  const cookiesReceived = c.getAll().map((ck) => ck.name);
+  const sessionCookiesPresent = {
+    __session: c.has("__session"),
+    __session_suffixed: cookiesReceived.some((n) =>
+      /^__session_[A-Za-z0-9]+$/.test(n),
+    ),
+    __client_uat: c.has("__client_uat"),
+    __client_uat_suffixed: cookiesReceived.some((n) =>
+      /^__client_uat_[A-Za-z0-9]+$/.test(n),
+    ),
+  };
+
   const serverState = {
-    clerk: {
-      userId: a.userId,
-      sessionId: a.sessionId,
-      orgId: a.orgId,
-      orgRole: a.orgRole,
-      orgSlug: a.orgSlug,
-      sessionClaims: a.sessionClaims
-        ? {
-            iss: a.sessionClaims.iss,
-            azp: a.sessionClaims.azp,
-            sub: a.sessionClaims.sub,
-            exp: a.sessionClaims.exp,
-            expHuman:
-              typeof a.sessionClaims.exp === "number"
-                ? new Date(a.sessionClaims.exp * 1000).toISOString()
-                : null,
-          }
-        : null,
+    authError,
+    clerk: a
+      ? {
+          userId: a.userId,
+          sessionId: a.sessionId,
+          orgId: a.orgId,
+          orgRole: a.orgRole,
+          orgSlug: a.orgSlug,
+          sessionClaims: a.sessionClaims
+            ? {
+                iss: a.sessionClaims.iss,
+                azp: a.sessionClaims.azp,
+                sub: a.sessionClaims.sub,
+                exp: a.sessionClaims.exp,
+                expHuman:
+                  typeof a.sessionClaims.exp === "number"
+                    ? new Date(a.sessionClaims.exp * 1000).toISOString()
+                    : null,
+              }
+            : null,
+        }
+      : null,
+    clerkMiddlewareHeaders: clerkHeaders,
+    cookies: {
+      received: cookiesReceived,
+      sessionCookiesPresent,
     },
     convexJwt: {
       ok: !!convexToken,
       error: convexTokenError,
       claims: decodeJwtClaims(convexToken),
       hint:
-        convexToken === null && !convexTokenError && a.userId
+        convexToken === null && !convexTokenError && a?.userId
           ? 'Server got NO Convex JWT. Most likely: Clerk has no JWT template named "convex" on the prod instance. Create one at: Clerk Dashboard -> Configure -> JWT templates -> + New template -> Convex.'
           : null,
     },
@@ -113,6 +157,23 @@ export default async function DebugWhoAmIPage() {
 
         <Card title="Clerk (server — what /dashboard, /onboarding, /admin see)">
           <Pre>{JSON.stringify(serverState.clerk, null, 2)}</Pre>
+          {serverState.authError && (
+            <p className="mt-2 text-xs text-red-300">
+              auth() threw: <code>{serverState.authError}</code>
+            </p>
+          )}
+        </Card>
+
+        <Card title="clerkMiddleware decision (x-clerk-* request headers)">
+          <Pre>
+            {Object.keys(serverState.clerkMiddlewareHeaders).length === 0
+              ? "(no x-clerk-* headers — middleware likely DID NOT RUN for this route — check proxy.ts matcher)"
+              : JSON.stringify(serverState.clerkMiddlewareHeaders, null, 2)}
+          </Pre>
+        </Card>
+
+        <Card title="Cookies the SERVER received (compare to client document.cookie below)">
+          <Pre>{JSON.stringify(serverState.cookies, null, 2)}</Pre>
         </Card>
 
         <Card title="Convex JWT template handshake (server)">
