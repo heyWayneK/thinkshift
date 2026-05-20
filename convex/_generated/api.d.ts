@@ -13,6 +13,7 @@ import type * as admin from "../admin.js";
 import type * as applications from "../applications.js";
 import type * as authz from "../authz.js";
 import type * as clerkSync from "../clerkSync.js";
+import type * as debug from "../debug.js";
 import type * as email from "../email.js";
 import type * as http from "../http.js";
 import type * as users from "../users.js";
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   applications: typeof applications;
   authz: typeof authz;
   clerkSync: typeof clerkSync;
+  debug: typeof debug;
   email: typeof email;
   http: typeof http;
   users: typeof users;
