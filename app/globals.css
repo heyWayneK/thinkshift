@@ -63,7 +63,7 @@ body {
 /* Hero video background — full-bleed, low-opacity layer with the center kept
    clear so the hero stays the focal point. */
 .hero-bg__video {
-  opacity: 0.8;
+  opacity: 0.3;
   /* -webkit-mask-image: radial-gradient(
     ellipse 20% 20% at 10% 10%,
     transparent 0%,
