@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import HeroVisual from "./components/HeroVisual";
+import HeroBackground from "./components/HeroBackground";
 import ApplyForm from "./components/ApplyForm";
 
 const CONTACT = "#apply";
@@ -23,7 +24,7 @@ export default async function Home() {
   const { userId } = await auth();
 
   return (
-    <div className="bg-aura relative flex min-h-full flex-col">
+    <div className="bg-aura relative flex min-h-full flex-col overflow-x-clip">
       <div className="bg-grid pointer-events-none absolute inset-0" />
 
       {/* Header */}
@@ -31,13 +32,22 @@ export default async function Home() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Logo className="h-7 w-auto" />
           <nav className="hidden items-center gap-8 text-sm text-muted md:flex">
-            <a href="#problem" className="transition-colors hover:text-foreground">
+            <a
+              href="#problem"
+              className="transition-colors hover:text-foreground"
+            >
               The Problem
             </a>
-            <a href="#solution" className="transition-colors hover:text-foreground">
+            <a
+              href="#solution"
+              className="transition-colors hover:text-foreground"
+            >
               The Solution
             </a>
-            <a href="#partners" className="transition-colors hover:text-foreground">
+            <a
+              href="#partners"
+              className="transition-colors hover:text-foreground"
+            >
               Who We Build With
             </a>
           </nav>
@@ -60,17 +70,18 @@ export default async function Home() {
 
       <main className="relative z-10 mx-auto w-full max-w-6xl px-6">
         {/* Hero */}
-        <section className="grid items-center gap-12 py-20 lg:grid-cols-2 lg:py-28">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-muted">
-              <span className="animate-dot h-1.5 w-1.5 rounded-full bg-accent" />
+        <section className="relative isolate grid items-center gap-12 py-20 lg:grid-cols-2 lg:py-28">
+          <HeroBackground />
+          <div className="relative z-10 ">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-muted max-w-[70%]">
+              <span className="animate-dot h-1.5 w-1.5 rounded-full bg-accent  " />
               Business-in-a-box growth engine
             </span>
-            <h1 className="mt-6 text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
+            <h1 className="mt-6 text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl max-w-[60%]">
               Let&apos;s build a business{" "}
               <span className="text-gradient">together.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
+            <p className="mt-6  text-lg leading-relaxed text-muted  max-w-[70%]">
               You bring the industry depth and the niche community inroads.
               ThinkShift plugs in a complete business-in-a-box growth
               engine—handling 100% of the tech, engineering, custom platforms,
@@ -93,13 +104,14 @@ export default async function Home() {
               </a>
             </div>
           </div>
-          <div className="lg:pl-4">
-            <HeroVisual />
-          </div>
+          <div className="relative z-10 lg:pl-4">{/* <HeroVisual /> */}</div>
         </section>
 
         {/* Problem */}
-        <section id="problem" className="border-t border-white/5 py-20 lg:py-28">
+        <section
+          id="problem"
+          className="border-t border-white/5 py-20 lg:py-28"
+        >
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
             The missing engine
           </p>
@@ -140,7 +152,10 @@ export default async function Home() {
         </section>
 
         {/* Solution */}
-        <section id="solution" className="border-t border-white/5 py-20 lg:py-28">
+        <section
+          id="solution"
+          className="border-t border-white/5 py-20 lg:py-28"
+        >
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
             The solution: ThinkShift
           </p>
@@ -169,9 +184,7 @@ export default async function Home() {
               },
             ].map((x, i) => (
               <div key={x.t} className="card p-7">
-                <span className="font-mono text-sm text-accent">
-                  0{i + 1}
-                </span>
+                <span className="font-mono text-sm text-accent">0{i + 1}</span>
                 <h3 className="mt-4 text-xl font-semibold">{x.t}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted">{x.d}</p>
               </div>
@@ -180,7 +193,10 @@ export default async function Home() {
         </section>
 
         {/* Partnership Profile */}
-        <section id="partners" className="border-t border-white/5 py-20 lg:py-28">
+        <section
+          id="partners"
+          className="border-t border-white/5 py-20 lg:py-28"
+        >
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
             Who we build with
           </p>

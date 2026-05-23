@@ -104,7 +104,10 @@ export default function HeroVisual() {
               <div
                 key={i}
                 className="animate-bar flex-1 rounded-t bg-gradient-to-t from-accent/40 to-accent-2"
-                style={{ height: `${h}%`, animationDelay: `${0.3 + i * 0.08}s` }}
+                style={{
+                  height: `${h}%`,
+                  animationDelay: `${0.3 + i * 0.08}s`,
+                }}
               />
             ))}
           </div>
