@@ -28,7 +28,7 @@ export default function Section2() {
               alt="Start"
               width={283}
               height={438}
-              className="h-auto w-40 sm:w-56 lg:w-72"
+              className="h-auto w-20 sm:w-56 lg:w-72"
               priority
             />
           </a>

@@ -85,18 +85,18 @@ export default async function Home() {
 
         <section
           id="apply"
-          className="bg-aura relative scroll-mt-24 border-x-[33px] border-y-[17px] border-black px-6 py-20 lg:py-28"
+          className="bg-aura relative scroll-mt-24 border-x-[33px] border-y-[17px] border-black px-2 py-20 lg:py-28"
         >
           <div className="bg-grid pointer-events-none absolute inset-0" />
-          <div className="relative mx-auto max-w-3xl">
-            <div className="card relative overflow-hidden p-10 text-center sm:p-16">
+          <div className="relative mx-auto max-w-3xl ">
+            <div className="card relative overflow-hidden p-1 text-center sm:p-16 ">
               <div className="bg-aura pointer-events-none absolute inset-0 opacity-70" />
               <div className="relative">
-                <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl text-black">
+                <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl text-black ">
                   We bring the growth engine. You bring the market.{" "}
                   <span className="text-gradient">Let&apos;s build.</span>
                 </h2>
-                <p className="mx-auto mt-5 max-w-xl text-lg text-muted">
+                <p className="mx-auto mt-5 max-w-xl text-lg text-neutral-500">
                   If you are ready to match our execution velocity and dominate
                   your niche space, let&apos;s talk.
                 </p>

@@ -42,10 +42,10 @@ function ScreenTile({
 }) {
   return (
     <div
-      className={`relative aspect-[349/226] w-full transform-gpu transition-[opacity,transform,filter] duration-700 ease-out ${
+      className={`relative aspect-[349/226] w-full transform-gpu transition-[opacity,transform,filter] duration-700 ease-out motion-reduce:transition-none ${
         visible
           ? "opacity-100 translate-y-0 blur-0"
-          : "opacity-0 translate-y-6 blur-sm"
+          : "opacity-0 translate-y-6 blur-sm motion-reduce:opacity-100 motion-reduce:translate-y-0 motion-reduce:blur-0"
       }`}
       style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
     >
@@ -66,7 +66,7 @@ function ScreenTile({
 function TileContent({ tile }: { tile: Tile }) {
   if (tile.kind === "title") {
     return (
-      <div className="text-2xl font-extrabold uppercase leading-tight tracking-tight text-white sm:text-3xl lg:text-4xl">
+      <div className="text-base font-extrabold uppercase leading-tight tracking-tight text-white sm:text-3xl lg:text-4xl">
         {tile.lines.map((l) => (
           <div key={l}>{l}</div>
         ))}
@@ -75,7 +75,7 @@ function TileContent({ tile }: { tile: Tile }) {
   }
   if (tile.kind === "engine") {
     return (
-      <div className="text-base font-extrabold uppercase leading-tight tracking-tight text-white sm:text-lg lg:text-xl">
+      <div className="text-[9px] font-extrabold uppercase leading-tight tracking-tight text-white sm:text-lg lg:text-xl">
         <div>+&nbsp;Business-</div>
         <div>in-a-Box</div>
         <div>Growth Engine</div>
@@ -83,7 +83,7 @@ function TileContent({ tile }: { tile: Tile }) {
     );
   }
   return (
-    <div className="text-lg font-extrabold uppercase leading-tight tracking-tight text-[#c4e600] sm:text-xl lg:text-2xl">
+    <div className="text-xs leading-tight font-bold md:font-extrabold uppercase tracking-tight text-[#c4e600] sm:text-xl lg:text-2xl">
       <div>{tile.n}.</div>
       {tile.lines.map((l) => (
         <div key={l}>{l}</div>
@@ -100,12 +100,10 @@ export default function Section4() {
     const el = gridRef.current;
     if (!el) return;
 
-    // Honour OS-level reduced-motion: show everything instantly, no stagger.
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setVisible(true);
-      return;
-    }
-
+    // Reduced-motion is handled in CSS via motion-reduce:* utilities on each
+    // tile (no JS branch needed, no setState-in-effect lint trap). The
+    // observer still fires for reduced-motion users; the visual change is
+    // suppressed by CSS so they see the final layout straight away.
     const obs = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {

@@ -118,13 +118,13 @@ export default function ApplyForm() {
 
       <div className="block">
         <span className="text-sm text-muted">Mobile</span>
-        <div className="mt-1 flex gap-2">
-          <label className="relative shrink-0">
+        <div className="mt-1 flex flex-col gap-2 sm:flex-row">
+          <label className="relative">
             <span className="sr-only">Country dial code</span>
             <select
               value={iso}
               onChange={(e) => setIso(e.target.value)}
-              className="appearance-none rounded-lg border border-white/15 bg-[#15181d] py-2 pl-3 pr-8 text-sm outline-none focus:border-accent/50"
+              className="w-full appearance-none rounded-lg border border-white/15 bg-[#15181d] py-2 pl-3 pr-8 text-sm outline-none focus:border-accent/50 sm:w-auto"
             >
               {COUNTRY_CODES.map((c) => (
                 <option key={c.iso} value={c.iso}>

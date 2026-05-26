@@ -27,7 +27,7 @@ export default function Section6() {
               alt="Start"
               width={283}
               height={438}
-              className="h-auto w-40 sm:w-56 lg:w-72"
+              className="h-auto w-20 sm:w-56 lg:w-72"
             />
           </a>
 
@@ -36,7 +36,7 @@ export default function Section6() {
             alt="Let's build your business together"
             width={476}
             height={449}
-            className="h-auto w-56 sm:w-80 lg:w-[28rem]"
+            className="h-auto w-56 sm:w-80 lg:w-[28rem] "
           />
         </div>
       </div>
@@ -48,7 +48,7 @@ export default function Section6() {
           width={1139}
           height={163}
           sizes="(max-width: 768px) 90vw, (max-width: 1280px) 80vw, 1200px"
-          className="h-auto w-full max-w-5xl drop-shadow-[0_4px_18px_rgba(0,0,0,0.45)]"
+          className="h-auto w-full max-w-5xl drop-shadow-[0_4px_18px_rgba(0,0,0,0.45)] "
         />
       </div>
     </section>
