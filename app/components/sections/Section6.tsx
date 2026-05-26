@@ -5,7 +5,7 @@ export default function Section6() {
   return (
     <section
       id="quote"
-      className="relative isolate flex min-h-screen w-full flex-col justify-between overflow-hidden border-x-16 border-y-8  md:border-x-33 md:border-y-17 lg:border-x-100 lg:border-t-100  border-white px-6 py-12 text-white sm:px-12 lg:px-20"
+      className="relative isolate flex min-h-[90dvh] lg:min-h-[80dvh] w-full flex-col justify-between overflow-hidden border-x-16 border-y-8  md:border-x-33 md:border-y-17 lg:border-x-100 lg:border-t-100  border-white px-6 py-12 text-white sm:px-12 lg:px-20"
     >
       <Image
         src="/bg_section_5.jpg"

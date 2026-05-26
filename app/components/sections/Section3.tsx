@@ -166,7 +166,7 @@ export default function Section3() {
     <section
       ref={ref}
       id="match"
-      className="relative isolate flex min-h-screen w-full overflow-hidden  border-x-16 border-y-8  md:border-x-33 md:border-y-17 lg:border-x-100 lg:border-t-100  border-white px-6 py-12 text-black sm:px-12 lg:px-20"
+      className="relative isolate flex min-h-[90dvh] lg:min-h-[80dvh] w-full overflow-hidden  border-x-16 border-y-8  md:border-x-33 md:border-y-17 lg:border-x-100 lg:border-t-100  border-white px-6 py-12 text-black sm:px-12 lg:px-20"
     >
       <Image
         src="/bg_section_2.jpg"

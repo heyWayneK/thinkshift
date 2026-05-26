@@ -40,9 +40,63 @@ async function graphToken(): Promise<string> {
 }
 
 /**
- * INTERNAL — sends the joint-venture application notification via Microsoft
- * Graph `sendMail`. Enqueued by applications.submit through the Convex
- * scheduler. Records the outcome and retries with backoff up to 3 attempts.
+ * Single Graph `sendMail` call. Sends as `sender` (the mailbox we own) to one
+ * recipient with a configurable reply-to. Graph returns 202 Accepted on
+ * success; anything else is treated as a failure.
+ */
+async function sendOneMail(args: {
+  sender: string;
+  token: string;
+  to: string;
+  toName?: string;
+  subject: string;
+  content: string;
+  replyTo: { address: string; name?: string };
+}): Promise<void> {
+  const res = await fetch(
+    `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(args.sender)}/sendMail`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${args.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: {
+          subject: args.subject,
+          body: { contentType: "Text", content: args.content },
+          toRecipients: [
+            {
+              emailAddress: args.toName
+                ? { address: args.to, name: args.toName }
+                : { address: args.to },
+            },
+          ],
+          replyTo: [{ emailAddress: args.replyTo }],
+        },
+        saveToSentItems: false,
+      }),
+    },
+  );
+
+  if (res.status !== 202) {
+    throw new Error(
+      `sendMail to ${args.to} failed (${res.status}): ${await res.text()}`,
+    );
+  }
+}
+
+/**
+ * INTERNAL — sends two emails for every joint-venture application:
+ *   1. Internal notification to Wayne (the SENDER mailbox) with the
+ *      submission details and the applicant's address as the reply-to.
+ *   2. Thank-you confirmation to the applicant echoing back what they
+ *      submitted, with Wayne's address as the reply-to.
+ *
+ * Enqueued by applications.submit through the Convex scheduler. Records the
+ * outcome and retries with backoff up to 3 attempts. If the second send
+ * fails after the first succeeded, a retry will re-send the first too —
+ * Wayne may see a duplicate. Acceptable trade-off for a low-volume form.
  */
 export const sendApplication = internalAction({
   args: { applicationId: v.id("applications") },
@@ -62,49 +116,59 @@ export const sendApplication = internalAction({
       return;
     }
 
+    // Shared submission block — appears in both emails so each recipient has
+    // the same record of what was sent.
+    const detailLines = [
+      `Name:   ${app.name}`,
+      `Email:  ${app.email}`,
+      `Mobile: ${app.mobile || "(not provided)"}`,
+      ``,
+      `Concept:`,
+      app.concept,
+    ];
+
     try {
       const token = await graphToken();
 
-      const res = await fetch(
-        `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(
-          sender,
-        )}/sendMail`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: {
-              subject: `JV application — ${app.name}`,
-              body: {
-                contentType: "Text",
-                content: [
-                  `New joint-venture application.`,
-                  ``,
-                  `Name:   ${app.name}`,
-                  `Email:  ${app.email}`,
-                  `Mobile: ${app.mobile || "(not provided)"}`,
-                  ``,
-                  `Concept:`,
-                  app.concept,
-                ].join("\n"),
-              },
-              toRecipients: [{ emailAddress: { address: sender } }],
-              replyTo: [
-                { emailAddress: { address: app.email, name: app.name } },
-              ],
-            },
-            saveToSentItems: false,
-          }),
-        },
-      );
+      // 1) Internal notification to Wayne.
+      await sendOneMail({
+        sender,
+        token,
+        to: sender,
+        subject: `JV application — ${app.name}`,
+        content: [
+          `New joint-venture application.`,
+          ``,
+          ...detailLines,
+        ].join("\n"),
+        // Hitting "reply" in Wayne's mail client sends straight to the applicant.
+        replyTo: { address: app.email, name: app.name },
+      });
 
-      // Graph sendMail returns 202 Accepted on success.
-      if (res.status !== 202) {
-        throw new Error(`sendMail failed (${res.status}): ${await res.text()}`);
-      }
+      // 2) Thank-you confirmation back to the applicant.
+      await sendOneMail({
+        sender,
+        token,
+        to: app.email,
+        toName: app.name,
+        subject: `Thank you — we received your ThinkShift application`,
+        content: [
+          `Hi ${app.name},`,
+          ``,
+          `Thank you for sending this message below.`,
+          ``,
+          `We've received your joint-venture application. We read every`,
+          `concept personally. If there's a fit, you'll hear from us directly.`,
+          ``,
+          `For your records, here's what you sent:`,
+          ``,
+          ...detailLines,
+          ``,
+          `— ThinkShift`,
+        ].join("\n"),
+        // If the applicant hits reply, it goes back to Wayne.
+        replyTo: { address: sender, name: "ThinkShift" },
+      });
 
       await ctx.runMutation(internal.applications.markStatus, {
         applicationId,

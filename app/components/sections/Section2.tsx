@@ -5,7 +5,7 @@ export default function Section2() {
   return (
     <section
       id="start"
-      className="relative isolate flex min-h-screen w-full flex-col justify-between overflow-hidden border-x-16 border-t-16 border-b-8 md:border-x-33 md:border-t-33 lg:border-x-100 lg:border-t-100 md:border-b-17 border-white px-6 py-12 text-white sm:px-12 lg:px-20"
+      className="relative isolate flex min-h-[90dvh] lg:min-h-[80dvh] w-full flex-col justify-between overflow-hidden border-x-16 border-t-16 border-b-8 md:border-x-33 md:border-t-33 lg:border-x-100 lg:border-t-100 md:border-b-17  px-6 py-12 text-white sm:px-12 lg:px-20"
     >
       <Image
         src="/bg_section_1.jpg"
@@ -38,7 +38,7 @@ export default function Section2() {
         </div>
       </div>
 
-      <div className="text-left">
+      <div className=" w-full flex justify-center pt-10">
         <Image
           src="/business_in_a_box_plus_growth_bid_white.png"
           alt="+ Business-in-a-box growth engine"
@@ -46,7 +46,7 @@ export default function Section2() {
           height={163}
           priority
           sizes="(max-width: 768px) 90vw, (max-width: 1280px) 80vw, 1200px"
-          className="h-auto w-full max-w-5xl drop-shadow-[0_4px_18px_rgba(0,0,0,0.45)]"
+          className="h-auto w-full max-w-lg drop-shadow-[0_4px_18px_rgba(0,0,0,0.45)]"
         />
       </div>
     </section>

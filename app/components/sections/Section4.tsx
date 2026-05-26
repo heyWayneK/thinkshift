@@ -158,7 +158,7 @@ export default function Section4() {
   return (
     <section
       id="journey"
-      className="relative isolate flex min-h-screen w-full items-center overflow-hidden  border-x-16 border-y-8  md:border-x-33 md:border-y-17 lg:border-x-100 lg:border-t-100  border-white px-6 py-16 sm:px-12 lg:px-20"
+      className="relative isolate flex min-h-[90dvh] lg:min-h-[80dvh] w-full items-center overflow-hidden  border-x-16 border-y-8  md:border-x-33 md:border-y-17 lg:border-x-100 lg:border-t-100  border-white px-6 py-16 sm:px-12 lg:px-20"
     >
       <Image
         src="/bg_section_3.jpg"
