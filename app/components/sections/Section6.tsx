@@ -1,10 +1,11 @@
 import Image from "next/image";
+import LetsBuildAnimated from "../LetsBuildAnimated";
 
 export default function Section6() {
   return (
     <section
       id="quote"
-      className="relative isolate flex min-h-screen w-full flex-col justify-between overflow-hidden border-x-[33px] border-y-[17px] border-black px-6 py-12 text-white sm:px-12 lg:px-20"
+      className="relative isolate flex min-h-screen w-full flex-col justify-between overflow-hidden border-x-16 border-y-8  md:border-x-33 md:border-y-17 lg:border-x-100 lg:border-t-100  border-white px-6 py-12 text-white sm:px-12 lg:px-20"
     >
       <Image
         src="/bg_section_5.jpg"
@@ -31,13 +32,7 @@ export default function Section6() {
             />
           </a>
 
-          <Image
-            src="/lets_build_your_business_white.svg"
-            alt="Let's build your business together"
-            width={476}
-            height={449}
-            className="h-auto w-56 sm:w-80 lg:w-[28rem] "
-          />
+          <LetsBuildAnimated className="h-auto w-56 sm:w-80 lg:w-[28rem]" />
         </div>
       </div>
 

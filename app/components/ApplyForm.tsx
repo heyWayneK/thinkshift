@@ -53,7 +53,7 @@ export default function ApplyForm() {
         <p className="text-lg font-semibold text-gradient">
           Application received.
         </p>
-        <p className="mt-2 text-muted">
+        <p className="mt-2 text-black">
           We read every concept personally. If there&apos;s a fit, you&apos;ll
           hear from us directly.
         </p>
@@ -96,9 +96,9 @@ export default function ApplyForm() {
         }
       }}
     >
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 ">
         <label className="block">
-          <span className="text-sm text-muted">Your name</span>
+          <span className="text-sm text-black">Your name</span>
           <input
             name="name"
             required
@@ -106,7 +106,7 @@ export default function ApplyForm() {
           />
         </label>
         <label className="block">
-          <span className="text-sm text-muted">Email</span>
+          <span className="text-sm text-black">Email</span>
           <input
             name="email"
             type="email"
@@ -117,7 +117,7 @@ export default function ApplyForm() {
       </div>
 
       <div className="block">
-        <span className="text-sm text-muted">Mobile</span>
+        <span className="text-sm text-black">Mobile</span>
         <div className="mt-1 flex flex-col gap-2 sm:flex-row">
           <label className="relative">
             <span className="sr-only">Country dial code</span>
@@ -134,7 +134,7 @@ export default function ApplyForm() {
             </select>
             <span
               aria-hidden
-              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted"
+              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black"
             >
               ▾
             </span>
@@ -154,7 +154,7 @@ export default function ApplyForm() {
       </div>
 
       <label className="block">
-        <span className="text-sm text-muted">Your concept</span>
+        <span className="text-sm text-black">Your concept</span>
         <textarea
           name="concept"
           required
@@ -187,7 +187,7 @@ export default function ApplyForm() {
       >
         {sending ? "Sending…" : "Apply for a Joint-Venture Partnership"}
       </button>
-      <p className="text-center text-xs text-muted">
+      <p className="text-center text-xs text-black">
         No fees, no pitches for hire. We invest our build into shared ventures.
       </p>
     </form>

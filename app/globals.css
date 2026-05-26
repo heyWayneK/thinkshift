@@ -150,6 +150,64 @@ body {
     opacity: 1;
   }
 }
+@keyframes blink-cursor {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.animate-cursor {
+  animation: blink-cursor 1.06s steps(1, end) infinite;
+}
+
+/*
+ * "Let's build your business together" — two-stage entrance:
+ *   1. Each letter's stroke draws on (dashoffset 1 → 0 over 1.6s).
+ *   2. Once drawn, the fill fades in (opacity 0 → 1 over 0.7s).
+ * Paths use `pathLength="1"` so every letter shares the same dasharray and
+ * draws over its full perimeter in the same wall-clock time, regardless of
+ * how short or long its actual path is.
+ */
+.lets-build-anim path {
+  fill: white;
+  fill-opacity: 0;
+  stroke: white;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition:
+    stroke-dashoffset 1.6s ease-out,
+    fill-opacity 0.7s ease-out;
+}
+/* The reset frame between replays — snap back to the from-state with no
+   transition so we don't see a reverse animation as the user re-enters. */
+.lets-build-anim[data-phase="idle"] path {
+  fill-opacity: 0;
+  stroke-dashoffset: 1;
+  transition: none;
+}
+.lets-build-anim[data-phase="drawing"] path {
+  stroke-dashoffset: 0;
+  fill-opacity: 0;
+}
+.lets-build-anim[data-phase="filled"] path {
+  stroke-dashoffset: 0;
+  fill-opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lets-build-anim path {
+    fill-opacity: 1 !important;
+    stroke-dashoffset: 0 !important;
+    transition: none !important;
+  }
+}
 @keyframes float-soft {
   0%,
   100% {
@@ -179,7 +237,8 @@ body {
   .animate-line,
   .animate-bar,
   .animate-dot,
-  .animate-float {
+  .animate-float,
+  .animate-cursor {
     animation: none;
   }
   .animate-bar {

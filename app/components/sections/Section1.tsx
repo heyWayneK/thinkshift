@@ -4,7 +4,7 @@ export default function Section1() {
   return (
     <section
       id="intro"
-      className="relative isolate flex min-h-screen w-full flex-col border-x-[33px] border-y-[17px] border-black bg-white px-6 py-10 text-black sm:px-12 lg:px-20"
+      className="relative isolate flex min-h-screen w-full flex-col  border-x-16 border-y-8  md:border-x-33 md:border-y-17 lg:border-x-100 lg:border-t-100  border-white bg-white px-6 py-10 text-black sm:px-12 lg:px-20"
     >
       <div className="flex justify-end">
         <Image

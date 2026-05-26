@@ -85,7 +85,7 @@ export default async function Home() {
 
         <section
           id="apply"
-          className="bg-aura relative scroll-mt-24 border-x-[33px] border-y-[17px] border-black px-2 py-20 lg:py-28"
+          className="bg-aura relative scroll-mt-24 border-x-16 border-y-8  md:border-x-33 md:border-y-17 lg:border-x-100 lg:border-t-100  border-white px-2 py-20 lg:py-28"
         >
           <div className="bg-grid pointer-events-none absolute inset-0" />
           <div className="relative mx-auto max-w-3xl ">

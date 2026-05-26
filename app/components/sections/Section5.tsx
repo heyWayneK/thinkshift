@@ -4,7 +4,7 @@ export default function Section5() {
   return (
     <section
       id="cta"
-      className="relative isolate flex min-h-screen w-full overflow-hidden border-x-[33px] border-y-[17px] border-black px-6 py-12 text-black sm:px-12 lg:px-20"
+      className="relative isolate flex min-h-screen w-full overflow-hidden  border-x-16 border-y-8  md:border-x-33 md:border-y-17 lg:border-x-100 lg:border-t-100  border-white px-6 py-12 text-black sm:px-12 lg:px-20"
     >
       <Image
         src="/bg_section_4.jpg"
@@ -32,12 +32,17 @@ export default function Section5() {
         </div>
 
         <div className="mt-auto flex justify-end pt-12">
-          <Image
-            src="/lets_build_your_business_together_straight_white.png"
-            alt="Let's build your business together"
+          <video
+            src="/lets_build_your_business_compressed.mp4"
             width={339}
             height={193}
-            className="h-auto w-40 sm:w-52 lg:w-64"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            aria-label="Let's build your business together"
+            className="h-auto w-40 mix-blend-lighten sm:w-52 lg:w-64"
           />
         </div>
       </div>
