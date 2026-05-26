@@ -65,7 +65,10 @@ export default defineSchema({
   applications: defineTable({
     name: v.string(),
     email: v.string(),
-    background: v.string(),
+    mobile: v.optional(v.string()),
+    // `background` (Your niche & community inroads) was retired 2026-05-26
+    // in favour of `mobile`. Kept optional so historical rows still validate.
+    background: v.optional(v.string()),
     concept: v.string(),
     status: v.union(
       v.literal("queued"),

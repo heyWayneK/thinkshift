@@ -9,11 +9,17 @@ import { requireUser, isSuperadmin, authDeny } from "./authz";
  * delivered to the client verbatim (even in production), so the form can show
  * a precise message against the right field.
  */
-function invalid(field: "name" | "email" | "concept", message: string): never {
+function invalid(
+  field: "name" | "email" | "mobile" | "concept",
+  message: string,
+): never {
   throw new ConvexError({ kind: "validation", field, message });
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Accepts E.164-style international numbers — up to 15 digits per ITU spec.
+// We strip everything that isn't a digit before checking length.
+const MOBILE_DIGITS_RE = /\d/g;
 
 /**
  * PUBLIC — submit a joint-venture application from the landing page.
@@ -25,7 +31,7 @@ export const submit = mutation({
   args: {
     name: v.string(),
     email: v.string(),
-    background: v.string(),
+    mobile: v.string(),
     concept: v.string(),
     website: v.optional(v.string()), // honeypot
   },
@@ -36,12 +42,15 @@ export const submit = mutation({
 
     const name = args.name.trim();
     const email = args.email.trim();
-    const background = args.background.trim();
+    const mobile = args.mobile.trim();
     const concept = args.concept.trim();
 
     if (name.length < 2) invalid("name", "Please enter your name.");
     if (!EMAIL_RE.test(email))
       invalid("email", "Please enter a valid email address.");
+    const mobileDigits = (mobile.match(MOBILE_DIGITS_RE) ?? []).length;
+    if (mobileDigits < 7 || mobileDigits > 15)
+      invalid("mobile", "Please enter a valid mobile number.");
     if (concept.length < 20)
       invalid(
         "concept",
@@ -51,7 +60,7 @@ export const submit = mutation({
     const applicationId = await ctx.db.insert("applications", {
       name: name.slice(0, 200),
       email: email.slice(0, 320),
-      background: background.slice(0, 2000),
+      mobile: mobile.slice(0, 40),
       concept: concept.slice(0, 5000),
       status: "queued",
       attempts: 0,

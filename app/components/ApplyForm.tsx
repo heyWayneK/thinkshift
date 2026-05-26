@@ -4,18 +4,24 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { ConvexError } from "convex/values";
 import { api } from "@/convex/_generated/api";
+import { COUNTRY_CODES, flagFor } from "@/app/lib/country-codes";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const DEFAULT_ISO = "US";
 
 /** Mirror of the server checks so most errors never hit the server. */
 function clientValidate(v: {
   name: string;
   email: string;
+  mobile: string;
   concept: string;
 }): string | null {
   if (v.name.trim().length < 2) return "Please enter your name.";
   if (!EMAIL_RE.test(v.email.trim()))
     return "Please enter a valid email address.";
+  const mobileDigits = (v.mobile.match(/\d/g) ?? []).length;
+  if (mobileDigits < 7 || mobileDigits > 15)
+    return "Please enter a valid mobile number.";
   if (v.concept.trim().length < 20)
     return "Tell us a bit more about your concept (at least 20 characters).";
   return null;
@@ -36,6 +42,10 @@ export default function ApplyForm() {
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [iso, setIso] = useState(DEFAULT_ISO);
+  const [mobileLocal, setMobileLocal] = useState("");
+
+  const dial = COUNTRY_CODES.find((c) => c.iso === iso)?.dial ?? "+1";
 
   if (done) {
     return (
@@ -59,10 +69,12 @@ export default function ApplyForm() {
         setError(null);
         const f = e.currentTarget;
         const data = new FormData(f);
+        const trimmedLocal = mobileLocal.trim();
+        const mobile = trimmedLocal ? `${dial} ${trimmedLocal}` : "";
         const fields = {
           name: String(data.get("name") ?? ""),
           email: String(data.get("email") ?? ""),
-          background: String(data.get("background") ?? ""),
+          mobile,
           concept: String(data.get("concept") ?? ""),
           website: String(data.get("website") ?? ""),
         };
@@ -104,16 +116,42 @@ export default function ApplyForm() {
         </label>
       </div>
 
-      <label className="block">
-        <span className="text-sm text-muted">
-          Your niche &amp; community inroads
-        </span>
-        <input
-          name="background"
-          placeholder="e.g. 12 yrs in commercial HVAC; run a 9k-member installer network"
-          className="mt-1 w-full rounded-lg border border-white/15 bg-[#15181d] px-3 py-2 text-sm outline-none focus:border-accent/50"
-        />
-      </label>
+      <div className="block">
+        <span className="text-sm text-muted">Mobile</span>
+        <div className="mt-1 flex gap-2">
+          <label className="relative shrink-0">
+            <span className="sr-only">Country dial code</span>
+            <select
+              value={iso}
+              onChange={(e) => setIso(e.target.value)}
+              className="appearance-none rounded-lg border border-white/15 bg-[#15181d] py-2 pl-3 pr-8 text-sm outline-none focus:border-accent/50"
+            >
+              {COUNTRY_CODES.map((c) => (
+                <option key={c.iso} value={c.iso}>
+                  {flagFor(c.iso)} {c.name} ({c.dial})
+                </option>
+              ))}
+            </select>
+            <span
+              aria-hidden
+              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted"
+            >
+              ▾
+            </span>
+          </label>
+          <input
+            name="mobile"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel-national"
+            value={mobileLocal}
+            onChange={(e) => setMobileLocal(e.target.value)}
+            placeholder={`${dial} ····`}
+            required
+            className="w-full rounded-lg border border-white/15 bg-[#15181d] px-3 py-2 text-sm outline-none focus:border-accent/50"
+          />
+        </div>
+      </div>
 
       <label className="block">
         <span className="text-sm text-muted">Your concept</span>
