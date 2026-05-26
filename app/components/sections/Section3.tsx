@@ -1,7 +1,17 @@
 import Image from "next/image";
 
-const YOU_BRING = ["Business Idea", "Niche Market", "Deep Experience", "Access to Niche"];
-const WE_BRING = ["CTO & Co-Founder", "Technical Backbone", "Marketing Setup", "Technical-Marketing"];
+const YOU_BRING = [
+  "Business Idea",
+  "Niche Market",
+  "Deep Experience",
+  "Access to Niche",
+];
+const WE_BRING = [
+  "CTO & Co-Founder",
+  "Technical Backbone",
+  "Marketing Setup",
+  "Technical-Marketing",
+];
 
 function Pillar({
   label,
@@ -30,7 +40,7 @@ function Pillar({
         {items.map((it) => (
           <div
             key={it}
-            className="rounded-full bg-black/10 px-5 py-2 text-center text-xs font-semibold uppercase tracking-wide text-black shadow-sm backdrop-blur-sm sm:py-2.5 sm:text-sm"
+            className="rounded-full bg-white/15 px-5 py-2 text-center text-xs font-semibold uppercase tracking-wide text-black shadow-sm backdrop-blur-sm sm:py-2.5 sm:text-sm max-w-max"
           >
             {it}
           </div>
