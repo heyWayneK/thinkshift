@@ -15,7 +15,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Required for og:image / twitter:image to resolve to absolute URLs in the
+// rendered <meta> tags. WhatsApp, iMessage, Slack, Facebook and Twitter all
+// refuse relative image paths, so without this they'd silently show no image.
+// Apex (not www) per the canonical-host decision in deployment notes.
 export const metadata: Metadata = {
+  metadataBase: new URL("https://thinkshift-ai.com"),
   title: "ThinkShift — Let's Build a Business Together",
   description:
     "You bring the industry depth and the niche community inroads. ThinkShift plugs in a complete business-in-a-box growth engine — handling 100% of the tech, engineering, custom platforms, and advanced go-to-market execution.",
@@ -23,7 +28,33 @@ export const metadata: Metadata = {
     title: "ThinkShift — Let's Build a Business Together",
     description:
       "The business-in-a-box growth engine. You bring the market, we bring the full-stack engineering and go-to-market execution.",
+    siteName: "ThinkShift",
     type: "website",
+    url: "/",
+    // First image is the universal default (most scrapers pick index 0).
+    // The square is offered second so clients that explicitly prefer 1:1
+    // (some WhatsApp / iMessage versions) can pick it up.
+    images: [
+      {
+        url: "/og_image_1200x630.jpg",
+        width: 1200,
+        height: 630,
+        alt: "ThinkShift — Let's build your business together",
+      },
+      {
+        url: "/og_image_square.jpg",
+        width: 1200,
+        height: 1200,
+        alt: "ThinkShift — Let's build your business together",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ThinkShift — Let's Build a Business Together",
+    description:
+      "The business-in-a-box growth engine. You bring the market, we bring the full-stack engineering and go-to-market execution.",
+    images: ["/og_image_1200x630.jpg"],
   },
 };
 
