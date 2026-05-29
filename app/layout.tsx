@@ -108,8 +108,7 @@ export default function RootLayout({
           socialButtonsBlockButton:
             "border border-white/15 text-[#e8eaed] hover:bg-white/5",
           formFieldLabel: "text-[#e8eaed]",
-          formFieldInput:
-            "bg-[#15181d] border border-white/15 text-[#e8eaed]",
+          formFieldInput: "bg-[#15181d] border border-white/15 text-[#e8eaed]",
           formButtonPrimary:
             "bg-[#34d399] text-[#04110d] font-semibold hover:brightness-110",
           footerActionText: "text-[#9aa0aa]",
@@ -117,8 +116,7 @@ export default function RootLayout({
           dividerText: "text-[#9aa0aa]",
           dividerLine: "bg-white/10",
           userButtonPopoverCard: "bg-[#0d0f12] border border-white/10",
-          userButtonPopoverActionButton:
-            "text-[#e8eaed] hover:bg-white/5",
+          userButtonPopoverActionButton: "text-[#e8eaed] hover:bg-white/5",
           organizationSwitcherPopoverCard:
             "bg-[#0d0f12] border border-white/10",
           organizationPreviewMainIdentifier: "text-[#e8eaed]",

@@ -40,7 +40,8 @@ function messageFrom(err: unknown): string {
 }
 
 function trackApplicationSubmit() {
-  const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
+  const gtag = (window as Window & { gtag?: (...args: unknown[]) => void })
+    .gtag;
 
   if (!gtag) return;
 
