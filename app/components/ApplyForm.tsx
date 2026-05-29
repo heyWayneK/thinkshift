@@ -8,6 +8,8 @@ import { COUNTRY_CODES, flagFor } from "@/app/lib/country-codes";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DEFAULT_ISO = "US";
+const GOOGLE_ADS_CONVERSION_LABEL =
+  process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL;
 
 /** Mirror of the server checks so most errors never hit the server. */
 function clientValidate(v: {
@@ -35,6 +37,24 @@ function messageFrom(err: unknown): string {
     if (d?.message) return d.message;
   }
   return "Something went wrong. Please try again.";
+}
+
+function trackApplicationSubmit() {
+  const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
+
+  if (!gtag) return;
+
+  if (GOOGLE_ADS_CONVERSION_LABEL) {
+    gtag("event", "conversion", {
+      send_to: `AW-18196687762/${GOOGLE_ADS_CONVERSION_LABEL}`,
+    });
+    return;
+  }
+
+  gtag("event", "form_submit", {
+    event_category: "lead",
+    event_label: "application_form",
+  });
 }
 
 export default function ApplyForm() {
@@ -88,6 +108,7 @@ export default function ApplyForm() {
         setSending(true);
         try {
           await submit(fields);
+          trackApplicationSubmit();
           setDone(true);
         } catch (err) {
           setError(messageFrom(err));
